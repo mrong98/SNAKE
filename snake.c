@@ -22,11 +22,25 @@ food_item * food = NULL;
 
 int turn;							//0 = forward, 1 = left, 2 = right and 0 is the default turn
 int direction;						//0 = up, 1 = left, 2 = right, 3 = down and 1 is the initial direction
-//empty_spaces: kevin
+unsigned char empty_spaces[144];	//list of the unoccupied grids on the matrix
 
 /*
-MOVE FOOD: kevin
-*/
+ * Generates new food location, which is guaranteed to not be occupied
+ */
+void move_food(void) {
+	int new_food_seed = rand() % (142-score);
+	int counter=0;
+	int new_food;
+	for (int i=0; i<144; i++) {
+		if (empty_spaces[i] == 1) {
+			if (counter == new_food_seed)
+				new_food = i;
+			counter++;
+		}
+	}
+	food->x = new_food%16;
+	food->y = (new_food - food->x)/16;
+}
 
 /* 
  * Removes the tail object of the snake and reassigns the global variable
@@ -35,7 +49,7 @@ MOVE FOOD: kevin
 void remove_tail (void) {
 	
 	draw_pixel(tail->x, tail->y, 0);
-	//empty_spaces[tail->x + 16*tail->y] = 1;        KEVIN
+	empty_spaces[tail->x + 16*tail->y] = 1;
 	
 	snake_part * temp = tail->prev;
 
@@ -132,7 +146,7 @@ snake_part * new_head_coord (void) {
 	head->prev = new_head;
 	new_head->next = head;
 	
-	//empty_spaces[new_head->x + 16*new_head->y] = 0;	KEVIN
+	empty_spaces[new_head->x + 16*new_head->y] = 0;
 
 	return new_head;
 }
@@ -211,8 +225,19 @@ void init_game_state (void) {
 }
 
 /*
-SETUP - KEVIN
-*/
+ * Sets up the hardware componenets and intializes the empty_spaces list
+ */
+void setup (void) {
+	LED_Initialize();
+	Button_Initialize();
+	board_enable();
+	Timer_Initialize();
+		
+	NVIC_SetPriority(PIT0_IRQn, 2); // set priorities in order of timer > buttons
+	NVIC_SetPriority(PIT1_IRQn, 5); // with current_time least important
+	NVIC_SetPriority(PORTA_IRQn, 1);
+	NVIC_SetPriority(PORTC_IRQn, 1);
+}
 
 /*
  * Main loop of the game code
@@ -330,6 +355,15 @@ void PORTC_IRQHandler(void) {
 }
 
 
-/*
-PIT1_IRQHandler - KEVIN
+/* 
+     PIT1 Interrupt Handler
 */
+void PIT1_IRQHandler(void)
+{
+	current_time++;
+	if (current_time == 1000) {
+		current_time = 0;
+	}
+	PIT->CHANNEL[1].TFLG |= 1; 			//reset timer flag
+	NVIC_ClearPendingIRQ(PIT1_IRQn);	//remove interrupt
+}
