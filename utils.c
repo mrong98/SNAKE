@@ -44,7 +44,18 @@ void Button_Initialize(void) {
  * Initializes timer for game state cycle, and 5ms current_time timer
 */
 void Timer_Initialize (void) {
-	// TODO
+	SIM->SCGC6 = SIM_SCGC6_PIT_MASK; // Enable clock to PIT module
+	PIT->MCR &= ~(0x2); // Enables standard PIT timers and makes them run in debug mode
+	
+	NVIC_EnableIRQ(PIT0_IRQn); //enable PIT0 Interrupts
+	PIT->CHANNEL[0].LDVAL = 0x00200000; // Set load value of zeroth PIT 
+	
+	//PIT1 initialization, modified from realtime lab
+	PIT->CHANNEL[1].LDVAL = 0x19000; // Set load value of first PIT - set for 0.005s
+	NVIC_EnableIRQ(PIT1_IRQn); /* enable PIT1 Interrupts */
+
+	PIT->CHANNEL[0].TCTRL |= 0x3; // Enables timer 0 and enables interrupts
+	PIT->CHANNEL[1].TCTRL |= 0x3; // Enables timer 1 and enables interrupts
 }
 
 void I2C_Initialize(void) {
