@@ -321,6 +321,14 @@ void draw_num(int num, int brightness) {
 }
 
 /*
+ * Draws the speed level of the next game to be played
+ */
+void draw_speed(int speed, int brightness) {
+	clear();
+	draw_line(15, 8, 15, (8-speed), brightness);
+}
+
+/*
  * I2C and Board Setup - initializes I2C on MCU and output pins
  * Then restarts external board and clears display
  * Drawn from Adafruit begin function

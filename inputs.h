@@ -5,5 +5,6 @@ int draw_pixel(int x, int y, int brightness);
 void clear(void);
 void board_enable(void);
 void draw_num(int num, int brightness);
+void draw_speed(int speed, int brightness);
 
 #endif
