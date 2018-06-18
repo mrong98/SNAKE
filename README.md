@@ -1,4 +1,5 @@
 # SNAKE
+Morena Rong (mrong98) and Kevin Ying (kevinzying)
 
 ## Introduction
 Our project implements the classic Nokia phone game, SNAKE using the FRDM K64F board and an LED matrix.
